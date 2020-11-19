@@ -1,0 +1,15 @@
+$color-bg-main: #FFFFFF;
+$color-bg-sub: #FAFAFA;
+$color-primary: #FFC5E2;
+$color-primary-lighten: lighten($color-primary, 5%);
+$color-secondary: #FFDA74;
+$color-font: #6C5558;
+$header-height: 64px;
+$form-height: 96px;
+$color-font-link: #6A72B9;
+
+.fa-icon {
+  display: inline-block;
+  width: 16px;
+  vertical-align: top;
+}

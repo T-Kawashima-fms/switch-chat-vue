@@ -1,26 +1,191 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div class="page-wrapper">
+    <div v-if="Object.keys(user).length === 0">
+      <header class="header">
+        <h1>Switch Chat</h1>
+      </header>
+      <main class="logins">
+        <h2>利用するにはログインしてください</h2>
+        <img
+          class="login-google"
+          @click="login"
+          src="./assets/images/btn_google_signin.png"
+        />
+      </main>
+    </div>
+    <div v-else>
+      <Header :user="user" class="header" />
+      <router-view :user="user"></router-view>
+    </div>
+    <!-- <v-icon name="beer" /> -->
+  </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Header from './components/Header.vue'
+import { login } from './firebase/index.js'
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    HelloWorld
-  }
-};
+    Header,
+  },
+  data: function() {
+    return {
+      user: {},
+    }
+  },
+  methods: {
+    login: function() {
+      login().then(result => {
+        this.user = result.user
+      })
+    },
+  },
+}
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+<style lang="scss" scoped>
+.logins {
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  h2 {
+    margin-top: 24px;
+    font-size: 20px;
+  }
+  .login-google {
+    margin-top: 24px;
+    cursor: pointer;
+  }
+}
+</style>
+
+<style>
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 </style>
