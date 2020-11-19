@@ -61,15 +61,11 @@ const postMessage = (roomId, user, message, replyMsgId) => {
 }
 
 const deletePost = (roomId, id, replyMsgId) => {
-  console.log(replyMsgId)
   let postRef = chatroomRef.doc(roomId).collection('posts')
   if (replyMsgId !== '') postRef = postRef.doc(replyMsgId).collection('replys')
   postRef
     .doc(id)
     .delete()
-    .then(() => {
-      console.log('削除成功')
-    })
     .catch(() => {
       console.log('削除失敗')
     })
@@ -172,14 +168,16 @@ const setGoodListener = (roomId, msgId, modified) => {
     .doc(roomId)
     .collection('posts')
     .doc(msgId)
-  postDoc.onSnapshot(
-    docSnapshot => {
-      modified(docSnapshot.data().goodUid)
-    },
-    err => {
-      console.log(`Encountered error: ${err}`)
-    }
-  )
+  if (postDoc.exists) {
+    postDoc.onSnapshot(
+      docSnapshot => {
+        modified(docSnapshot.data().goodUid)
+      },
+      err => {
+        console.log(`Encountered error: ${err}`)
+      }
+    )
+  }
 }
 
 export {
