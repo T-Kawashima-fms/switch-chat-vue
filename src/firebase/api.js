@@ -130,7 +130,18 @@ const changePP = (roomId, isPublic) => {
   )
 }
 
-// SIdemenu用最初のデータ読み込み
+const changeTimer = (roomId, time, play) => {
+  const chatroomDoc = chatroomRef.doc(roomId)
+  chatroomDoc.set(
+    {
+      timer: time,
+      isPlaying: play,
+    },
+    { merge: true }
+  )
+}
+
+// Sidemenu用のデータ読み込み
 const setDataListener = (roomId, got) => {
   //追加されたメッセージを取得するためのリスナ
   const chatroomDoc = chatroomRef.doc(roomId)
@@ -186,6 +197,7 @@ export {
   setPostListener,
   createNewChatroom,
   changePP,
+  changeTimer,
   setChangeListener,
   setDataListener,
   addGood,

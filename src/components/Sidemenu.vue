@@ -1,16 +1,16 @@
 <template>
   <div class="wrapper">
-    <div class="show-p">
-      <p v-if="!checkboxModel" class="show-private">
+    <div class="pp-wrapper__show">
+      <p v-if="!checkboxModel" class="pp-wrapper__show-private">
         <fa icon="lock" type="fas" class="fa-icon"></fa>
         <span>コメント非公開中</span>
       </p>
-      <p v-else class="show-public">
+      <p v-else class="pp-wrapper__show-public">
         <fa icon="lock-open" type="fas" class="fa-icon"></fa>
         <span>コメント公開中</span>
       </p>
     </div>
-    <div v-if="isFacilitator">
+    <div v-if="isFacilitator" class="pp-wrapper__op">
       <input
         type="checkbox"
         id="p-switch"
@@ -26,14 +26,24 @@
         </p>
       </label>
     </div>
+    <Timer
+      :isFacilitator="isFacilitator"
+      :isPlaying="isPlaying"
+      :timer="timer"
+      @toggle-timer="toggleTimer($event)"
+    ></Timer>
   </div>
 </template>
 
 <script>
-import { changePP, setDataListener } from '../firebase/api.js'
+import { changePP, setDataListener, changeTimer } from '../firebase/api.js'
+import Timer from './Timer'
 
 export default {
   name: 'Message',
+  components: {
+    Timer,
+  },
   created() {
     this.fetchData()
   },
@@ -49,6 +59,8 @@ export default {
       if (this.uid === chatroomDatas.createUid) this.isFacilitator = true
       if (this.checkboxModel != chatroomDatas.isPublic)
         this.checkboxModel = chatroomDatas.isPublic
+      this.isPlaying = chatroomDatas.isPlaying
+      this.timer = chatroomDatas.timer
     },
     clickCheckbox: function() {
       let qes = 'メッセージを公開してもよろしいですか'
@@ -57,10 +69,15 @@ export default {
       const ans = confirm(qes)
       if (!ans) event.preventDefault()
     },
+    toggleTimer: function(event) {
+      changeTimer(this.roomId, event.time, event.play)
+    },
   },
   data: function() {
     return {
       isFacilitator: false,
+      isPlaying: false,
+      timer: 0,
       checkboxModel: false,
       roomId: this.$route.params['roomId'],
     }
@@ -84,17 +101,17 @@ export default {
   text-align: center;
 }
 
-.show-p {
+.pp-wrapper__show {
   display: inline-block;
   margin-top: 64px;
   color: white;
   p {
     padding: 8px 16px;
   }
-  &rivate {
+  &-private {
     background-color: blue;
   }
-  &ublic {
+  &-public {
     background-color: red;
   }
 }
