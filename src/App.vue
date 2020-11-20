@@ -14,7 +14,7 @@
       </main>
     </div>
     <div v-else>
-      <Header :user="user" class="header" />
+      <Header :user="user" />
       <router-view :user="user"></router-view>
     </div>
   </div>
@@ -37,6 +37,7 @@ export default {
   methods: {
     login: function() {
       login().then(result => {
+        //this.$session.start()
         this.user = result.user
       })
     },
@@ -45,8 +46,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header {
+  height: $header-height;
+  padding: 0 16px;
+  background: $color-primary;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: $color-font;
+  h1 {
+    display: inline-block;
+    line-height: $header-height;
+    font-size: 28px;
+    .title-link {
+      text-decoration: none;
+      color: $color-font;
+    }
+  }
+}
+
 .page-wrapper {
-  min-width: 650px;
+  width: 100%;
 }
 .logins {
   text-align: center;

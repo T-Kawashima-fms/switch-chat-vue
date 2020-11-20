@@ -82,6 +82,12 @@ export default {
     background: $color-primary-lighten;
   }
 }
+.content {
+  width: 100%;
+  display: inline-block;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
 .date {
   margin: 0 16px;
   font-size: 12px;

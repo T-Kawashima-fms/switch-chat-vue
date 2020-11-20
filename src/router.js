@@ -1,6 +1,11 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import Top from './views/Top'
 import Chat from './views/Chat'
+import Presenter from './views/Presenter'
+import { isMobile } from 'mobile-device-detect'
+
+let chatComponent = Chat
+if (isMobile) chatComponent = Presenter
 
 const routes = [
   {
@@ -12,7 +17,7 @@ const routes = [
   {
     path: '/chatroom/:roomId',
     name: 'chat',
-    component: Chat,
+    component: chatComponent,
     props: true,
   },
 ]

@@ -122,6 +122,20 @@ const setChangeListener = (roomId, showMsgs, hideMsgs) => {
   )
 }
 
+// Sidemenu用のデータ読み込み
+const setDataListener = (roomId, got) => {
+  //追加されたメッセージを取得するためのリスナ
+  const chatroomDoc = chatroomRef.doc(roomId)
+  chatroomDoc.onSnapshot(
+    docSnapshot => {
+      got(docSnapshot.data())
+    },
+    err => {
+      console.log(`Encountered error: ${err}`)
+    }
+  )
+}
+
 const changePP = (roomId, isPublic) => {
   const chatroomDoc = chatroomRef.doc(roomId)
   chatroomDoc.set(
@@ -140,20 +154,6 @@ const changeTimer = (roomId, time, play) => {
       isPlaying: play,
     },
     { merge: true }
-  )
-}
-
-// Sidemenu用のデータ読み込み
-const setDataListener = (roomId, got) => {
-  //追加されたメッセージを取得するためのリスナ
-  const chatroomDoc = chatroomRef.doc(roomId)
-  chatroomDoc.onSnapshot(
-    docSnapshot => {
-      got(docSnapshot.data())
-    },
-    err => {
-      console.log(`Encountered error: ${err}`)
-    }
   )
 }
 

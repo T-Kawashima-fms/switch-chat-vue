@@ -27,6 +27,7 @@
         <span class="edit-msg" :class="{ 'edit-msg__isMine': isMine }">
           <MessageGood class="MessageGood" :uid="user.uid" :msgId="msgId" />
           <fa
+            v-if="!isPresenter"
             icon="reply"
             type="fas"
             :class="{ reply__checked: replyIsChecked }"
@@ -45,6 +46,7 @@
 import MessageGood from './MessageGood'
 import ReplyMessage from './ReplyMessage'
 import { deletePost, setPostListener } from '../firebase/api.js'
+import { isMobile } from 'mobile-device-detect'
 
 export default {
   name: 'Message',
@@ -116,6 +118,7 @@ export default {
     return {
       messages: [],
       roomId: this.$route.params['roomId'],
+      isPresenter: isMobile,
     }
   },
 }
@@ -162,6 +165,11 @@ export default {
   &__isMine {
     background: $color-primary;
   }
+}
+.content {
+  width: 240px;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 .card-info {
   margin: 0 16px;

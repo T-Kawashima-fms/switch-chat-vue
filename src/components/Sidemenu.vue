@@ -96,14 +96,6 @@ export default {
       timer: 0,
       checkboxModel: false,
       roomId: this.$route.params['roomId'],
-      qrcode_option: {
-        errorCorrectionLevel: 'M',
-        maskPattern: 0,
-        margin: 10,
-        scale: 2,
-        width: 300,
-        color: '#000000FF',
-      },
     }
   },
   watch: {
@@ -114,7 +106,6 @@ export default {
   },
   mounted: function() {
     setDataListener(this.roomId, this.getChatroomDatas)
-    console.log(this.$route)
   },
 }
 </script>
