@@ -17,7 +17,6 @@
       <Header :user="user" class="header" />
       <router-view :user="user"></router-view>
     </div>
-    <!-- <v-icon name="beer" /> -->
   </div>
 </template>
 
@@ -46,6 +45,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.page-wrapper {
+  min-width: 650px;
+}
 .logins {
   text-align: center;
   h2 {

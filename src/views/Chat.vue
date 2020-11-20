@@ -5,23 +5,25 @@
     </div>
     <div class="main-wrapper">
       <div class="message-wrapper" ref="message-wrapper">
-        <transition-group name="message-transition">
-          <Message
-            v-for="message in messages"
-            :key="message.id"
-            :msgId="message.id"
-            :message="message.message"
-            :icon="message.icon"
-            :timestamp="message.timestamp"
-            :displayName="message.displayName"
-            :isMine="message.isMine"
-            @delete-post="deletePost(message.id)"
-            :class="{ transparent: !message.isAlive }"
-            @toggle-reply="toggleReply(message.id)"
-            :replyIsChecked="message.replyIsChecked"
-            :user="user"
-          ></Message>
-        </transition-group>
+        <div class="scroll-wrapper">
+          <transition-group name="message-transition">
+            <Message
+              v-for="message in messages"
+              :key="message.id"
+              :msgId="message.id"
+              :message="message.message"
+              :icon="message.icon"
+              :timestamp="message.timestamp"
+              :displayName="message.displayName"
+              :isMine="message.isMine"
+              @delete-post="deletePost(message.id)"
+              :class="{ transparent: !message.isAlive }"
+              @toggle-reply="toggleReply(message.id)"
+              :replyIsChecked="message.replyIsChecked"
+              :user="user"
+            ></Message>
+          </transition-group>
+        </div>
       </div>
       <div class="message-form__background">
         <div class="message-form__wrapper">
@@ -124,7 +126,6 @@ export default {
         this.messages[idx].replyIsChecked = true
         this.replyMsgId = id
       }
-      console.log(this.replyMsgId)
     },
   },
   mounted: function() {
@@ -171,7 +172,8 @@ export default {
   height: calc(100vh - #{$header-height});
   display: grid;
   grid-template-areas: 'side main';
-  grid-template-columns: 240px calc(100vw - calc(240px + 48px));
+  $calc_main: calc(100vw - calc(240px + 48px));
+  grid-template-columns: 240px $calc_main;
 }
 .sidemenu-wrapper {
   grid-area: side;
@@ -179,11 +181,17 @@ export default {
 }
 .main-wrapper {
   grid-area: main;
+  width: 100%;
 }
 .message-wrapper {
   background: $color-bg-main;
   display: inline-block;
   width: 100%;
+  .scroll-wrapper {
+    min-width: 600px;
+    overflow-x: scroll;
+    white-space: nowrap;
+  }
   margin: 0 auto;
   height: calc(calc(100vh - #{$header-height}) - calc(#{$form-height} + 24px));
   padding: 0 24px 24px;
@@ -192,6 +200,7 @@ export default {
 }
 .message-form {
   &__background {
+    display: inline-block;
     background: $color-primary-lighten;
     width: 100%;
     height: $form-height;

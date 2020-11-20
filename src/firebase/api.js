@@ -25,6 +25,8 @@ const createNewChatroom = create_uid => {
       createTime: new Date(Date.now()),
       createUid: create_uid,
       isPublic: false,
+      isPlaying: false,
+      timer: 0,
     })
     .then(() => {
       router.push({ name: 'chat', params: { roomId: chatroomRefId } })
@@ -179,16 +181,16 @@ const setGoodListener = (roomId, msgId, modified) => {
     .doc(roomId)
     .collection('posts')
     .doc(msgId)
-  if (postDoc.exists) {
-    postDoc.onSnapshot(
-      docSnapshot => {
+  postDoc.onSnapshot(
+    docSnapshot => {
+      if (docSnapshot.exists) {
         modified(docSnapshot.data().goodUid)
-      },
-      err => {
-        console.log(`Encountered error: ${err}`)
       }
-    )
-  }
+    },
+    err => {
+      console.log(`Encountered error: ${err}`)
+    }
+  )
 }
 
 export {

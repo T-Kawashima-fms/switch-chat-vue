@@ -22,18 +22,19 @@
           :class="{ transparent: !message.isAlive }"
         ></ReplyMessage>
       </div>
-      <span class="date" :class="{ date__isMine: isMine }"
-        >{{ date }}
-        <MessageGood class="MessageGood" :uid="user.uid" :msgId="msgId" />
-        <fa
-          icon="reply"
-          type="fas"
-          class="fa-icon"
-          :class="{ reply__checked: replyIsChecked }"
-          @click="$emit('toggle-reply')"
-        ></fa>
-        <span v-if="isMine" @click="$emit('delete-post')" class="delete"
-          >削除
+      <span class="card-info" :class="{ 'card-info__isMine': isMine }">
+        <span class="date" :class="{ date__isMine: isMine }">{{ date }}</span>
+        <span class="edit-msg" :class="{ 'edit-msg__isMine': isMine }">
+          <MessageGood class="MessageGood" :uid="user.uid" :msgId="msgId" />
+          <fa
+            icon="reply"
+            type="fas"
+            :class="{ reply__checked: replyIsChecked }"
+            @click="$emit('toggle-reply')"
+          ></fa>
+          <span v-if="isMine" @click="$emit('delete-post')" class="delete"
+            >削除
+          </span>
         </span>
       </span>
     </div>
@@ -162,7 +163,7 @@ export default {
     background: $color-primary;
   }
 }
-.date {
+.card-info {
   margin: 0 16px;
   font-size: 14px;
   display: block;
@@ -184,12 +185,32 @@ export default {
   margin: 0 16px;
 }
 
-.MessageGood {
-  display: inline;
-  margin: 0 8px;
-}
-
 .reply__checked {
   color: lightgreen;
+}
+.date {
+  display: inline-block;
+  margin-right: 16px;
+  &__isMine {
+    margin-right: 0;
+  }
+}
+.edit-msg {
+  display: inline-block;
+  * {
+    width: 12px;
+    cursor: pointer;
+    margin-left: 0;
+    margin-right: 16px;
+  }
+  .MessageGood {
+    display: inline;
+  }
+  &__isMine {
+    * {
+      margin-left: 16px;
+      margin-right: 0;
+    }
+  }
 }
 </style>

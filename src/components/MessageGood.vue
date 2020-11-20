@@ -4,14 +4,14 @@
       v-if="!isChecked"
       icon="thumbs-up"
       type="fas"
-      class="fa-icon good__unchecked"
+      class="good good__unchecked"
       @click="addGood(msgId)"
     ></fa>
     <fa
       v-else
       icon="thumbs-up"
       type="fas"
-      class="fa-icon good__checked"
+      class="good good__checked"
       @click="deleteGood(msgId)"
     ></fa>
     <span class="good-num">{{ goodNum }}</span>
@@ -64,12 +64,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.fa-icon {
-  width: 12px;
-  cursor: pointer;
-  margin-left: 16px;
-}
 .good {
+  width: 12px;
   &__checked {
     color: orange;
   }

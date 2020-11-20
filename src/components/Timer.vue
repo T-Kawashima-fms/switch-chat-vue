@@ -86,9 +86,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.timer-wrapper {
-  margin-top: 64px;
-}
 .timer_btn {
   width: 80px;
   padding: 8px 0;

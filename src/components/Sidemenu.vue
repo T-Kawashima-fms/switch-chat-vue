@@ -1,48 +1,64 @@
 <template>
   <div class="wrapper">
-    <div class="pp-wrapper__show">
-      <p v-if="!checkboxModel" class="pp-wrapper__show-private">
-        <fa icon="lock" type="fas" class="fa-icon"></fa>
-        <span>コメント非公開中</span>
-      </p>
-      <p v-else class="pp-wrapper__show-public">
-        <fa icon="lock-open" type="fas" class="fa-icon"></fa>
-        <span>コメント公開中</span>
-      </p>
-    </div>
-    <div v-if="isFacilitator" class="pp-wrapper__op">
-      <input
-        type="checkbox"
-        id="p-switch"
-        v-model="checkboxModel"
-        v-on:click="clickCheckbox"
-      />
-      <label for="p-switch" class="label_p-switch">
-        <p v-if="!checkboxModel">
-          <span>コメントを公開する</span>
+    <div class="content-wrapper pp-wrapper">
+      <div class="pp-wrapper__show">
+        <p v-if="!checkboxModel" class="pp-wrapper__show-private">
+          <fa icon="lock" type="fas" class="fa-icon"></fa>
+          <span>コメント非公開中</span>
         </p>
-        <p v-else>
-          <span>コメントを非公開にする</span>
+        <p v-else class="pp-wrapper__show-public">
+          <fa icon="lock-open" type="fas" class="fa-icon"></fa>
+          <span>コメント公開中</span>
         </p>
-      </label>
+      </div>
+      <div v-if="isFacilitator" class="pp-wrapper__op">
+        <input
+          type="checkbox"
+          id="p-switch"
+          v-model="checkboxModel"
+          v-on:click="clickCheckbox"
+        />
+        <label for="p-switch" class="label_p-switch">
+          <p v-if="!checkboxModel">
+            <span>コメントを公開する</span>
+          </p>
+          <p v-else>
+            <span>コメントを非公開にする</span>
+          </p>
+        </label>
+      </div>
     </div>
-    <Timer
-      :isFacilitator="isFacilitator"
-      :isPlaying="isPlaying"
-      :timer="timer"
-      @toggle-timer="toggleTimer($event)"
-    ></Timer>
+    <div class="content-wrapper">
+      <Timer
+        :isFacilitator="isFacilitator"
+        :isPlaying="isPlaying"
+        :timer="timer"
+        @toggle-timer="toggleTimer($event)"
+      ></Timer>
+    </div>
+    <div class="content-wrapper">
+      <div>
+        チャットルームID：<span>{{ roomId }}</span>
+      </div>
+      <div>
+        <vue-qrcode
+          :value="'https://switch-chat-c5ad1.web.app' + $route.path"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { changePP, setDataListener, changeTimer } from '../firebase/api.js'
 import Timer from './Timer'
+import VueQrcode from 'vue3-qrcode'
 
 export default {
   name: 'Message',
   components: {
     Timer,
+    VueQrcode,
   },
   created() {
     this.fetchData()
@@ -80,6 +96,14 @@ export default {
       timer: 0,
       checkboxModel: false,
       roomId: this.$route.params['roomId'],
+      qrcode_option: {
+        errorCorrectionLevel: 'M',
+        maskPattern: 0,
+        margin: 10,
+        scale: 2,
+        width: 300,
+        color: '#000000FF',
+      },
     }
   },
   watch: {
@@ -90,6 +114,7 @@ export default {
   },
   mounted: function() {
     setDataListener(this.roomId, this.getChatroomDatas)
+    console.log(this.$route)
   },
 }
 </script>
@@ -103,7 +128,6 @@ export default {
 
 .pp-wrapper__show {
   display: inline-block;
-  margin-top: 64px;
   color: white;
   p {
     padding: 8px 16px;
@@ -120,7 +144,7 @@ export default {
   display: none;
 }
 .label_p-switch {
-  margin-top: 32px;
+  margin-top: 16px;
   cursor: pointer;
   display: inline-block;
   p {
@@ -132,5 +156,12 @@ export default {
     background-color: $color-primary-lighten;
     color: $color-font;
   }
+}
+
+.content-wrapper {
+  margin-top: 64px;
+}
+.pp-wrapper {
+  margin-top: 32px;
 }
 </style>

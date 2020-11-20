@@ -74,8 +74,8 @@ export default {
 }
 .card {
   font-size: 14px;
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 12px;
   line-height: 18px;
   background: lighten($color-secondary, 10%);
   &__isMine {
