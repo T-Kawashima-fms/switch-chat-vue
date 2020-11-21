@@ -84,10 +84,9 @@ export default {
   }
 }
 .content {
-  width: 100%;
-  display: inline-block;
-  overflow-wrap: break-word;
+  word-break: break-all;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 .date {
   margin: 0 16px;

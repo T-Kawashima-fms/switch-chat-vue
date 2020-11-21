@@ -15,10 +15,10 @@ const getUserData = (user, got) => {
           .doc(user.uid)
           .set({
             displayName: user.displayName,
-            icon: user.icon,
+            icon: user.photoURL,
           })
           .then(() => {
-            got(user.uid, user.displayName, user.icon)
+            got(user.uid, user.displayName, user.photoURL)
           })
       } else {
         got(doc.id, doc.data().displayName, doc.data().icon)

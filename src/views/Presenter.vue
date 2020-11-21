@@ -1,18 +1,27 @@
 <template>
   <div class="page-wrapper">
-    <div class="mesasge-wrapper">
-      <Message
-        v-for="message in messages"
-        :key="message.id"
-        :msgId="message.id"
-        :message="message.message"
-        :icon="message.icon"
-        :timestamp="message.timestamp"
-        :displayName="message.displayName"
-        :isMine="message.isMine"
-        :class="{ transparent: !message.isAlive }"
-        :user="user"
-      ></Message>
+    <header class="header">
+      <h1>
+        <router-link :to="{ name: 'top' }" class="title-link"
+          >P-Switch Chat</router-link
+        >
+      </h1>
+    </header>
+    <div class="message-wrapper">
+      <div class="message-container">
+        <Message
+          v-for="message in messages"
+          :key="message.id"
+          :msgId="message.id"
+          :message="message.message"
+          :icon="message.icon"
+          :timestamp="message.timestamp"
+          :displayName="message.displayName"
+          :isMine="message.isMine"
+          :class="{ transparent: !message.isAlive }"
+          :user="user"
+        ></Message>
+      </div>
     </div>
     <div v-if="!isPublic" class="center_timer-wrapper">
       <Timer
@@ -80,28 +89,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header {
+  height: $header-height;
+  padding: 0 16px;
+  background: $color-primary;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: $color-font;
+  * {
+    display: inline-block;
+  }
+  h1 {
+    line-height: $header-height;
+    font-size: 28px;
+    .title-link {
+      text-decoration: none;
+      color: $color-font;
+    }
+  }
+}
 .page-wrapper {
-  padding: 0 8px;
-  width: calc(100vw - 16px);
-  height: calc(100vh - #{$header-height});
-  overflow-y: auto;
-  white-space: nowrap;
-  background: $color-bg-main;
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: #{$header-height};
+  }
 }
 .message-wrapper {
-  background: $color-bg-main;
-  display: inline-block;
-  width: 100%;
-  .scroll-wrapper {
-    min-width: 600px;
-    overflow-x: scroll;
-    white-space: nowrap;
+  background-color: $color-bg-main;
+  margin-top: #{$header-height};
+  height: calc(100vh - #{$header-height});
+  .message-container {
+    height: 100%;
+    overflow-y: auto;
+    padding: 0 8px;
   }
-  margin: 0 auto;
-  height: calc(calc(100vh - #{$header-height}) - calc(#{$form-height} + 24px));
-  padding: 0 24px 24px;
-  overflow: auto;
-  scroll-behavior: smooth;
 }
 .center_timer-wrapper {
   position: absolute;

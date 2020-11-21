@@ -14,19 +14,21 @@
       </main>
     </div>
     <div v-else>
-      <Header :user="user" @toggle-mypage="toggleMypage" />
-      <div class="mypage-wrapper" :class="{ hidden: isHidden }">
-        <input
-          type="text"
-          v-model="changedName"
-          :placeholder="user.displayName"
-        />
-        <br />
-        <button @click="submitName">
-          名前を変更する
-        </button>
-        <br />
-        <button class="logout" @click="logout">ログアウト</button>
+      <div v-if="!isMobile">
+        <Header :user="user" @toggle-mypage="toggleMypage" />
+        <div class="mypage-wrapper" :class="{ hidden: isHidden }">
+          <input
+            type="text"
+            v-model="changedName"
+            :placeholder="user.displayName"
+          />
+          <br />
+          <button @click="submitName">
+            名前を変更する
+          </button>
+          <br />
+          <button class="logout" @click="logout">ログアウト</button>
+        </div>
       </div>
       <router-view :user="user"></router-view>
     </div>
@@ -37,6 +39,7 @@
 import Header from './components/Header.vue'
 import { login } from './firebase/index.js'
 import { getUserData, changeName } from './firebase/api.js'
+import { isMobile } from 'mobile-device-detect'
 
 export default {
   name: 'App',
@@ -47,6 +50,7 @@ export default {
     return {
       user: {},
       isHidden: true,
+      isMobile: isMobile,
     }
   },
   //セッションの確認
