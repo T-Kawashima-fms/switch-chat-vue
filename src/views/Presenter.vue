@@ -20,6 +20,7 @@
           :isMine="message.isMine"
           :class="{ transparent: !message.isAlive }"
           :user="user"
+          :isTokumei="isTokumei"
         ></Message>
       </div>
     </div>
@@ -45,9 +46,19 @@ export default {
     Message,
   },
   methods: {
+    addAnker: function(match) {
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+    },
     addMessage: function(newPost) {
+      const url_regexp = /https*?:\/\/([\w-]+\.)+[\w-]+(\/[\w-~ .?%&=]*)*/g
+      newPost.message = newPost.message.replace(url_regexp, this.addAnker)
       //配列に追加
       newPost.isAlive = true
+      if (newPost.uid == this.user.uid) {
+        newPost.isMine = true
+      } else {
+        newPost.isMine = false
+      }
       this.messages.push(newPost)
       //DOM更新した後に一番下までスクロール
       //  this.$nextTick(() => {
@@ -65,6 +76,7 @@ export default {
       this.isPublic = chatroomDatas.isPublic
       this.isPlaying = chatroomDatas.isPlaying
       this.timer = chatroomDatas.timer
+      this.isTokumei = chatroomDatas.isTokumei
     },
   },
   mounted: function() {
@@ -83,6 +95,7 @@ export default {
       isPlaying: false,
       timer: 0,
       roomId: this.$route.params['roomId'],
+      isTokumei: true,
     }
   },
 }

@@ -1,10 +1,13 @@
 <template>
   <div class="wrapper" :class="{ wrapper__isMine: isMine }">
-    <img :src="icon" class="icon" />
+    <img :src="icon" class="icon" v-bind:class="{ hidden: isTokumei }" />
     <div class="card-wrapper">
       <span
         class="display-name"
-        v-bind:class="{ 'display-name__isMine': isMine }"
+        v-bind:class="{
+          'display-name__isMine': isMine,
+          hidden: isTokumei,
+        }"
         >{{ displayName }}</span
       >
       <div class="card" :class="{ card__isMine: isMine }">
@@ -31,6 +34,7 @@ export default {
     displayName: String,
     icon: String,
     isMine: Boolean,
+    isTokumei: Boolean,
   },
   computed: {
     date: function() {
@@ -102,5 +106,8 @@ export default {
   margin-left: 4px;
   color: $color-font-link;
   text-decoration: underline;
+}
+.hidden {
+  display: none;
 }
 </style>

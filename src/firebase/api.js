@@ -92,6 +92,7 @@ const createNewChatroom = create_uid => {
       isPublic: false,
       isPlaying: false,
       timer: 0,
+      isTokumei: false,
     })
     .then(() => {
       router.push({ name: 'chat', params: { roomId: chatroomRefId } })
@@ -211,6 +212,16 @@ const changePP = (roomId, isPublic) => {
   )
 }
 
+const changeTokumei = (roomId, isTokumei) => {
+  const chatroomDoc = chatroomRef.doc(roomId)
+  chatroomDoc.set(
+    {
+      isTokumei: isTokumei,
+    },
+    { merge: true }
+  )
+}
+
 const changeTimer = (roomId, time, play) => {
   const chatroomDoc = chatroomRef.doc(roomId)
   chatroomDoc.set(
@@ -272,4 +283,5 @@ export {
   setGoodListener,
   // uploadIcon,
   changeName,
+  changeTokumei,
 }

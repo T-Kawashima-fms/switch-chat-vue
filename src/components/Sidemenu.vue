@@ -26,6 +26,12 @@
             <span>コメントを非公開にする</span>
           </p>
         </label>
+        <br />
+        <input
+          type="checkbox"
+          v-model="checkboxTokumei"
+          v-on:click="clickTokumei"
+        />匿名化
       </div>
     </div>
     <div class="content-wrapper">
@@ -50,7 +56,12 @@
 </template>
 
 <script>
-import { changePP, setDataListener, changeTimer } from '../firebase/api.js'
+import {
+  changePP,
+  setDataListener,
+  changeTimer,
+  changeTokumei,
+} from '../firebase/api.js'
 import Timer from './Timer'
 import VueQrcode from 'vue3-qrcode'
 
@@ -75,6 +86,8 @@ export default {
       if (this.uid === chatroomDatas.createUid) this.isFacilitator = true
       if (this.checkboxModel != chatroomDatas.isPublic)
         this.checkboxModel = chatroomDatas.isPublic
+      if (this.checkboxTokumei != chatroomDatas.isTokumei)
+        this.checkboxTokumei = chatroomDatas.isTokumei
       this.isPlaying = chatroomDatas.isPlaying
       this.timer = chatroomDatas.timer
     },
@@ -84,6 +97,13 @@ export default {
         qes = 'メッセージを非公開にしてもよろしいですか'
       const ans = confirm(qes)
       if (!ans) event.preventDefault()
+    },
+    clickTokumei: function() {
+      if (this.checkboxTokumei) {
+        const qes = '匿名化を解除してもよろしいですか'
+        const ans = confirm(qes)
+        if (!ans) event.preventDefault()
+      }
     },
     toggleTimer: function(event) {
       changeTimer(this.roomId, event.time, event.play)
@@ -95,6 +115,7 @@ export default {
       isPlaying: false,
       timer: 0,
       checkboxModel: false,
+      checkboxTokumei: false,
       roomId: this.$route.params['roomId'],
     }
   },
@@ -102,6 +123,9 @@ export default {
     $route: 'fetchData',
     checkboxModel: function(newVal, oldVal) {
       if (newVal != oldVal) changePP(this.roomId, newVal)
+    },
+    checkboxTokumei: function(newVal, oldVal) {
+      if (newVal != oldVal) changeTokumei(this.roomId, newVal)
     },
   },
   mounted: function() {

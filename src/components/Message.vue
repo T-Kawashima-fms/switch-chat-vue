@@ -1,10 +1,13 @@
 <template>
   <div class="wrapper" :class="{ wrapper__isMine: isMine }">
-    <img :src="icon" class="icon" />
+    <img :src="icon" class="icon" v-bind:class="{ hidden: isTokumei }" />
     <div class="card-wrapper">
       <span
         class="display-name"
-        v-bind:class="{ 'display-name__isMine': isMine }"
+        v-bind:class="{
+          'display-name__isMine': isMine,
+          hidden: isTokumei,
+        }"
         >{{ displayName }}</span
       >
       <div class="card" :class="{ card__isMine: isMine }">
@@ -21,6 +24,7 @@
           :isMine="message.isMine"
           @delete-replypost="deleteReplyPost(message.id)"
           :class="{ transparent: !message.isAlive }"
+          :isTokumei="isTokumei"
         ></ReplyMessage>
       </div>
       <span class="card-info" :class="{ 'card-info__isMine': isMine }">
@@ -70,6 +74,7 @@ export default {
     isMine: Boolean,
     user: Object,
     replyIsChecked: Boolean,
+    isTokumei: Boolean,
   },
   computed: {
     date: function() {
@@ -227,5 +232,8 @@ export default {
       margin-right: 0;
     }
   }
+}
+.hidden {
+  display: none;
 }
 </style>

@@ -22,6 +22,7 @@
             @toggle-reply="toggleReply(message.id)"
             :replyIsChecked="message.replyIsChecked"
             :user="user"
+            :isTokumei="isTokumei"
           ></Message>
         </transition-group>
       </div>
@@ -130,6 +131,7 @@ export default {
     getChatroomDatas: function(chatroomDatas) {
       if (chatroomDatas.isPublic) this.messages = this.allMessages
       else this.messages = this.myMessages
+      this.isTokumei = chatroomDatas.isTokumei
     },
     toggleReply: function(id) {
       this.messages.forEach(message => (message.replyIsChecked = false))
@@ -156,6 +158,7 @@ export default {
       allMessages: [],
       roomId: this.$route.params['roomId'],
       replyMsgId: '',
+      isTokumei: true,
     }
   },
 }
