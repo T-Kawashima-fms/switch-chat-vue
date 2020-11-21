@@ -208,7 +208,7 @@ export default {
     bottom: 0;
   }
   &__wrapper {
-    max-width: 1280px;
+    // max-width: 1280px;
     margin: 0 auto;
     padding: 16px;
     line-height: $form-height;
