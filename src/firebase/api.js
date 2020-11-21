@@ -3,6 +3,71 @@ import { db, firebase } from './index.js'
 import router from '../router.js'
 
 const chatroomRef = db.collection('chatroom')
+const userRef = db.collection('user')
+
+const getUserData = (user, got) => {
+  userRef
+    .doc(user.uid)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        userRef
+          .doc(user.uid)
+          .set({
+            displayName: user.displayName,
+            icon: user.icon,
+          })
+          .then(() => {
+            got(user.uid, user.displayName, user.icon)
+          })
+      } else {
+        got(doc.id, doc.data().displayName, doc.data().icon)
+      }
+    })
+    .catch(err => {
+      console.log('Error getting document', err)
+    })
+}
+
+const changeName = (user, newName, got) => {
+  userRef
+    .doc(user.uid)
+    .set(
+      {
+        displayName: newName,
+      },
+      { merge: true }
+    )
+    .then(() => {
+      got(user.uid, newName, user.photoURL)
+    })
+}
+
+// const storageRef = storage.ref()
+// const uploadIcon = (uid, imageFile, imageName) => {
+//   storageRef
+//     .child(`icons/${imageName}`)
+//     .put(imageFile)
+//     .then(snapshot => {
+//       snapshot.ref.getDownloadURL().then(downloadURL => {
+//         userRef.doc(uid).set(
+//           {
+//             icon: downloadURL,
+//           },
+//           { merge: true }
+//         )
+//       })
+//     })
+// }
+
+const htmlspecialchars = str => {
+  return (str + '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
 
 const shapeData = doc => {
   const post = {
@@ -47,7 +112,7 @@ const postMessage = (roomId, user, message, replyMsgId) => {
   if (replyMsgId !== '') postRef = postRef.doc(replyMsgId).collection('replys')
   postRef
     .add({
-      message,
+      message: htmlspecialchars(message),
       uid: user.uid,
       displayName: user.displayName,
       icon: user.photoURL,
@@ -108,19 +173,19 @@ const setPostListener = (roomId, added, removed, replyMsgId) => {
 }
 
 // Chat.vue用チャットルーム情報変更取得
-const setChangeListener = (roomId, showMsgs, hideMsgs) => {
-  const chatroomDoc = chatroomRef.doc(roomId)
-  chatroomDoc.onSnapshot(
-    docSnapshot => {
-      // console.log(docSnapshot.data())
-      if (docSnapshot.data().isPublic) showMsgs()
-      else hideMsgs()
-    },
-    error => {
-      console.log('Error at setChangeListener: ' + error)
-    }
-  )
-}
+// const setChangeListener = (roomId, showMsgs, hideMsgs) => {
+//   const chatroomDoc = chatroomRef.doc(roomId)
+//   chatroomDoc.onSnapshot(
+//     docSnapshot => {
+//       // console.log(docSnapshot.data())
+//       if (docSnapshot.data().isPublic) showMsgs()
+//       else hideMsgs()
+//     },
+//     error => {
+//       console.log('Error at setChangeListener: ' + error)
+//     }
+//   )
+// }
 
 // Sidemenu用のデータ読み込み
 const setDataListener = (roomId, got) => {
@@ -194,15 +259,17 @@ const setGoodListener = (roomId, msgId, modified) => {
 }
 
 export {
+  getUserData,
   postMessage,
   deletePost,
   setPostListener,
   createNewChatroom,
   changePP,
   changeTimer,
-  setChangeListener,
   setDataListener,
   addGood,
   deleteGood,
   setGoodListener,
+  // uploadIcon,
+  changeName,
 }

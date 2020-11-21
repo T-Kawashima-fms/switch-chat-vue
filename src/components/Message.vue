@@ -8,7 +8,8 @@
         >{{ displayName }}</span
       >
       <div class="card" :class="{ card__isMine: isMine }">
-        <span class="content">{{ message }}</span>
+        <!-- <span class="content">{{ message }}</span> -->
+        <span v-html="message" class="content"></span>
         <ReplyMessage
           v-for="message in messages"
           :key="message.id"
@@ -79,7 +80,12 @@ export default {
     fetchData: function() {
       this.roomId = this.$route.params['roomId']
     },
+    addAnker: function(match) {
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+    },
     addReplyMessage: function(newPost) {
+      const url_regexp = /https*?:\/\/([\w-]+\.)+[\w-]+(\/[\w-~ .?%&=]*)*/g
+      newPost.message = newPost.message.replace(url_regexp, this.addAnker)
       //配列に追加
       newPost.isAlive = true
       //自分の投稿かどうか
@@ -159,6 +165,7 @@ export default {
 }
 .card {
   border-radius: 18px;
+  font-size: 16px;
   padding: 14px;
   line-height: 18px;
   background: $color-secondary;
@@ -170,6 +177,7 @@ export default {
   width: 240px;
   word-break: break-all;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 .card-info {
   margin: 0 16px;

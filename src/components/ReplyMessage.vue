@@ -8,7 +8,8 @@
         >{{ displayName }}</span
       >
       <div class="card" :class="{ card__isMine: isMine }">
-        <span class="content">{{ message }}</span>
+        <!-- <span class="content">{{ message }}</span> -->
+        <span v-html="message" class="content"></span>
       </div>
       <span class="date" :class="{ date__isMine: isMine }"
         >{{ date }}

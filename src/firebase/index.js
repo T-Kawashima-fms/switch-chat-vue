@@ -5,6 +5,7 @@ import 'firebase/firestore'
 
 firebase.initializeApp(firebaseConfig)
 
+// const storage = firebase.storage()
 const db = firebase.firestore()
 
 const login = () => {

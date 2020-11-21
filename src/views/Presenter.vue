@@ -1,20 +1,18 @@
 <template>
   <div class="page-wrapper">
     <div class="mesasge-wrapper">
-      <transition-group name="message-transition">
-        <Message
-          v-for="message in messages"
-          :key="message.id"
-          :msgId="message.id"
-          :message="message.message"
-          :icon="message.icon"
-          :timestamp="message.timestamp"
-          :displayName="message.displayName"
-          :isMine="message.isMine"
-          :class="{ transparent: !message.isAlive }"
-          :user="user"
-        ></Message>
-      </transition-group>
+      <Message
+        v-for="message in messages"
+        :key="message.id"
+        :msgId="message.id"
+        :message="message.message"
+        :icon="message.icon"
+        :timestamp="message.timestamp"
+        :displayName="message.displayName"
+        :isMine="message.isMine"
+        :class="{ transparent: !message.isAlive }"
+        :user="user"
+      ></Message>
     </div>
     <div v-if="!isPublic" class="center_timer-wrapper">
       <Timer
@@ -90,18 +88,20 @@ export default {
   white-space: nowrap;
   background: $color-bg-main;
 }
-.message-transition {
-  &-leave,
-  &-leave-to {
-    opacity: 0;
+.message-wrapper {
+  background: $color-bg-main;
+  display: inline-block;
+  width: 100%;
+  .scroll-wrapper {
+    min-width: 600px;
+    overflow-x: scroll;
+    white-space: nowrap;
   }
-  &-move {
-    transition: all 500ms;
-  }
-  &-leave-active {
-    position: absolute;
-    transition-duration: 0ms;
-  }
+  margin: 0 auto;
+  height: calc(calc(100vh - #{$header-height}) - calc(#{$form-height} + 24px));
+  padding: 0 24px 24px;
+  overflow: auto;
+  scroll-behavior: smooth;
 }
 .center_timer-wrapper {
   position: absolute;

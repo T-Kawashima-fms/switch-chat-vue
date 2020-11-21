@@ -1,11 +1,13 @@
 <template lang="ja">
     <header class="header">
       <h1>
-        <router-link :to="{ name: 'top' }" class="title-link">Switch Chat</router-link>
+        <router-link :to="{ name: 'top' }" class="title-link">P-Switch Chat</router-link>
       </h1>
       <div class="user-data">
         <span>{{user.displayName}}でログイン中</span>
-        <img :src="user.photoURL" class="icon" />
+        <button @click="$emit('toggle-mypage')" class="toMypage">
+          <img :src="user.photoURL" class="icon" />
+        </button>
       </div>
     </header>
 </template>
@@ -16,10 +18,22 @@ export default {
   props: {
     user: Object,
   },
+  methods: {
+    // logout: function() {
+    //   this.$store.commit('setUser', '')
+    // },
+  },
 }
 </script>
 
 <style lang="scss" scoped>
+.toMypage {
+  background: none;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+}
 .header {
   height: $header-height;
   padding: 0 16px;
@@ -50,6 +64,7 @@ export default {
     .icon {
       width: 28px;
       border-radius: 50%;
+      cursor: pointer;
     }
   }
 }

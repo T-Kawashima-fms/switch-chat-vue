@@ -2,7 +2,7 @@
   <div class="page-wrapper">
     <div v-if="Object.keys(user).length === 0">
       <header class="header">
-        <h1>Switch Chat</h1>
+        <h1>P-Switch Chat</h1>
       </header>
       <main class="logins">
         <h2>利用するにはログインしてください</h2>
@@ -14,7 +14,20 @@
       </main>
     </div>
     <div v-else>
-      <Header :user="user" />
+      <Header :user="user" @toggle-mypage="toggleMypage" />
+      <div class="mypage-wrapper" :class="{ hidden: isHidden }">
+        <input
+          type="text"
+          v-model="changedName"
+          :placeholder="user.displayName"
+        />
+        <br />
+        <button @click="submitName">
+          名前を変更する
+        </button>
+        <br />
+        <button class="logout" @click="logout">ログアウト</button>
+      </div>
       <router-view :user="user"></router-view>
     </div>
   </div>
@@ -23,6 +36,7 @@
 <script>
 import Header from './components/Header.vue'
 import { login } from './firebase/index.js'
+import { getUserData, changeName } from './firebase/api.js'
 
 export default {
   name: 'App',
@@ -32,14 +46,50 @@ export default {
   data: function() {
     return {
       user: {},
+      isHidden: true,
+    }
+  },
+  //セッションの確認
+  mounted: function() {
+    // console.log(this.$store.state.user_session)
+    if (Object.keys(this.$store.state.user_session).length !== 0) {
+      //セッションしてる
+      getUserData(this.$store.state.user_session, this.setUserData)
+    } else {
+      //セッションしてない→ログイン促す
+      this.user = {}
     }
   },
   methods: {
     login: function() {
-      login().then(result => {
-        //this.$session.start()
-        this.user = result.user
-      })
+      login()
+        .then(result => {
+          //ログインしたらセッション→props
+          this.$store.commit('setUser', result.user)
+        })
+        .then(() => {
+          getUserData(this.$store.state.user_session, this.setUserData)
+        })
+    },
+    setUserData: function(id, name, icon) {
+      //セッションの情報をPropsに持ってくる
+      this.user.uid = id
+      this.user.displayName = name
+      this.user.photoURL = icon
+    },
+    toggleMypage: function() {
+      this.isHidden = !this.isHidden
+    },
+    submitName: function() {
+      changeName(
+        this.$store.state.user_session,
+        this.changedName,
+        this.setUserData
+      )
+    },
+    logout: function() {
+      this.user = {}
+      this.$store.state.user_session = {}
     },
   },
 }
@@ -68,6 +118,28 @@ export default {
 .page-wrapper {
   width: 100%;
 }
+
+.mypage-wrapper {
+  position: fixed;
+  background: #ffffff;
+  display: inline-block;
+  top: #{$header-height};
+  left: 240px;
+  right: 0;
+  bottom: 0;
+  padding: 64px 0;
+  text-align: center;
+  * {
+    margin-top: 32px;
+  }
+  .logout {
+    margin-top: 128px;
+  }
+}
+.hidden {
+  display: none;
+}
+
 .logins {
   text-align: center;
   h2 {
@@ -209,5 +281,10 @@ q:after {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+body {
+  font-family: 'Avenir', 'Helvetica Neue', 'Helvetica', 'Arial', 'Hiragino Sans',
+    'ヒラギノ角ゴシック', YuGothic, 'Yu Gothic', 'メイリオ', Meiryo,
+    'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
 }
 </style>

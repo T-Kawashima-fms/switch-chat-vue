@@ -5,6 +5,9 @@ service cloud.firestore {
       allow read, create, update: if isLogin()
       allow delete: if isLogin() && request.auth.uid == get(request.path).data.uid
     }
+    match /user/{userId=**} {
+      allow read, create, update
+    }
   }
   function isLogin(){
     return request.auth.uid != null
