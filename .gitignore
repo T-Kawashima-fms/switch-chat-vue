@@ -5,6 +5,7 @@ node_modules
 /src/firebase/.firebaseConfig.js
 
 # local env files
+.env
 .env.local
 .env.*.local
 
