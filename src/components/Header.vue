@@ -1,7 +1,7 @@
 <template lang="ja">
     <header class="header">
       <h1>
-        <router-link :to="{ name: 'top' }" class="title-link">P-Switch Chat</router-link>
+        <router-link :to="{ name: 'top' }" class="title-link">PriPub Chat</router-link>
       </h1>
       <div class="user-data">
         <span>{{user.displayName}}でログイン中</span>

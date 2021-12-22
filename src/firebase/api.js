@@ -69,11 +69,16 @@ const htmlspecialchars = str => {
     .replace(/>/g, '&gt;')
 }
 
+const addAnker = match => {
+  return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+}
 const shapeData = doc => {
   const post = {
     id: doc.id,
     ...doc.data(),
   }
+  const url_regexp = /https*?:\/\/([\w-]+\.)+[\w-]+(\/[\w-~ .?%&=]*)*/g
+  post.message = post.message.replace(url_regexp, addAnker)
   if (post.timestamp === null) {
     post.timestamp = new Date(Date.now())
   } else {
@@ -110,7 +115,8 @@ const createNewChatroom = create_uid => {
 
 const postMessage = (roomId, user, message, replyMsgId) => {
   let postRef = chatroomRef.doc(roomId).collection('posts')
-  if (replyMsgId !== '') postRef = postRef.doc(replyMsgId).collection('replys')
+  if (replyMsgId !== 'isNotReply')
+    postRef = postRef.doc(replyMsgId).collection('replys')
   postRef
     .add({
       message: htmlspecialchars(message),
@@ -130,13 +136,27 @@ const postMessage = (roomId, user, message, replyMsgId) => {
 
 const deletePost = (roomId, id, replyMsgId) => {
   let postRef = chatroomRef.doc(roomId).collection('posts')
-  if (replyMsgId !== '') postRef = postRef.doc(replyMsgId).collection('replys')
+  if (replyMsgId !== 'isNotReply')
+    postRef = postRef.doc(replyMsgId).collection('replys')
   postRef
     .doc(id)
     .delete()
     .catch(() => {
       console.log('削除失敗')
     })
+}
+
+const toggleGood = (roomId, id, uid, isChecked) => {
+  let postRef = chatroomRef.doc(roomId).collection('posts')
+  if (isChecked) {
+    postRef.doc(id).update({
+      goodUid: firebase.firestore.FieldValue.arrayRemove(uid),
+    })
+  } else {
+    postRef.doc(id).update({
+      goodUid: firebase.firestore.FieldValue.arrayUnion(uid),
+    })
+  }
 }
 
 // const getPost = callback => {
@@ -152,10 +172,11 @@ const deletePost = (roomId, id, replyMsgId) => {
 // }
 
 // Chat.vue用チャットメッセージ変更取得
-const setPostListener = (roomId, added, removed, replyMsgId) => {
+const setPostListener = (roomId, replyMsgId, added, modified, removed) => {
   //追加されたメッセージを取得するためのリスナ
   let postRef = chatroomRef.doc(roomId).collection('posts')
-  if (replyMsgId !== '') postRef = postRef.doc(replyMsgId).collection('replys')
+  if (replyMsgId !== 'isNotReply')
+    postRef = postRef.doc(replyMsgId).collection('replys')
   postRef
     .orderBy('timestamp', 'asc')
     // .startAt(new Date(Date.now()))
@@ -166,7 +187,9 @@ const setPostListener = (roomId, added, removed, replyMsgId) => {
           added(shapeData(change.doc))
         } else if (change.type == 'modified') {
           //modified
+          modified(shapeData(change.doc))
         } else if (change.type == 'removed') {
+          //removed
           removed(change.doc.id)
         }
       })
@@ -269,6 +292,97 @@ const setGoodListener = (roomId, msgId, modified) => {
   )
 }
 
+const getPostData = (roomId, callback) => {
+  let posts = []
+  const postRef = chatroomRef.doc(roomId).collection('posts')
+  let count = 0
+  postRef
+    .orderBy('timestamp', 'asc')
+    .get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        count++
+        let post = {}
+        post['id'] = doc.id
+        post['isReply'] = false
+        post['name'] = doc.data().displayName
+        post['message'] = doc.data().message
+        post['timestamp'] = doc.data().timestamp.toDate()
+        posts.push(post)
+      })
+    })
+    .then(() => {
+      console.log('count = ' + count)
+      callback(posts)
+    })
+    .catch(err => {
+      console.log('Error getting documents', err)
+    })
+}
+const getReplyData = (roomId, docId, callback) => {
+  let replys = []
+  const replyRef = chatroomRef
+    .doc(roomId)
+    .collection('posts')
+    .doc(docId)
+    .collection('replys')
+  replyRef
+    .orderBy('timestamp', 'asc')
+    .get()
+    .then(subSnapshot => {
+      if (subSnapshot.docs.length > 0) {
+        subSnapshot.forEach(subDoc => {
+          let reply = {}
+          console.log(
+            docId +
+              ',' +
+              subDoc.data().displayName +
+              ',' +
+              subDoc.data().message +
+              ',' +
+              subDoc.data().timestamp.toDate()
+          )
+          reply['id'] = subDoc.id
+          reply['isReply'] = true
+          reply['name'] = subDoc.data().displayName
+          reply['message'] = subDoc.data().message
+          reply['timestamp'] = subDoc.data().timestamp.toDate()
+          replys.push(reply)
+        })
+      }
+    })
+    .then(() => {
+      callback(replys)
+    })
+    .catch(err => {
+      console.log('Error getting documents', err)
+    })
+}
+
+const cntMsgNum = roomId => {
+  let cnt = 0
+  chatroomRef
+    .doc(roomId)
+    .collection('posts')
+    .get()
+    .then(snap => {
+      cnt += snap.size
+      console.log('posts: ' + cnt)
+      snap.forEach(doc => {
+        chatroomRef
+          .doc(roomId)
+          .collection('posts')
+          .doc(doc.id)
+          .collection('replys')
+          .get()
+          .then(repSnap => {
+            cnt += repSnap.size
+            console.log('replys: ' + cnt)
+          })
+      })
+    })
+}
+
 export {
   getUserData,
   postMessage,
@@ -284,4 +398,8 @@ export {
   // uploadIcon,
   changeName,
   changeTokumei,
+  getPostData,
+  getReplyData,
+  toggleGood,
+  cntMsgNum,
 }

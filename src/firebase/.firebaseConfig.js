@@ -1,9 +1,9 @@
 export default {
-  apiKey: "AIzaSyAO-YbNAqzyU_gZWTVPM0km_lvK4nUTNKk",
-  authDomain: "switch-chat-c5ad1.firebaseapp.com",
-  databaseURL: "https://switch-chat-c5ad1.firebaseio.com",
-  projectId: "switch-chat-c5ad1",
-  storageBucket: "switch-chat-c5ad1.appspot.com",
-  messagingSenderId: "542876852138",
-  appId: "1:542876852138:web:fadf76c97a1c9edf2655d3"
+  apiKey: process.env.VUE_APP_APIKEY,
+  authDomain: process.env.VUE_APP_AUTHDOMAIN,
+  databaseURL: process.env.VUE_APP_DATABASEURL,
+  projectId: process.env.VUE_APP_PROJECTID,
+  storageBucket: process.env.VUE_APP_STORAGEBUCKET,
+  messagingSenderId: process.env.VUE_APP_MESSAGINGSENDERID,
+  appId: process.env.VUE_APP_APPID
 };

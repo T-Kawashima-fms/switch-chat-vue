@@ -1,38 +1,82 @@
 <template>
-  <div class="wrapper" :class="{ wrapper__isMine: isMine }">
-    <img :src="icon" class="icon" v-bind:class="{ hidden: isTokumei }" />
-    <div class="card-wrapper">
+  <div
+    class="wrapper"
+    :class="{
+      wrapper__isMine: isMine,
+      wrapper__isReply: isReply,
+      wrapper__isMineReply: isMine && isReply,
+    }"
+  >
+    <img
+      :src="icon"
+      class="icon"
+      :class="{ hidden: isTokumei, icon__isReply: isReply }"
+    />
+    <div
+      class="card-wrapper"
+      :class="{
+        'card-wrapper__isMine': isMine,
+        'card-wrapper__isReply': isReply,
+      }"
+    >
       <span
         class="display-name"
-        v-bind:class="{
-          'display-name__isMine': isMine,
+        :class="{
           hidden: isTokumei,
+          'display-name__isMine': isMine,
+          'display-name__isReply': isReply,
         }"
-        >{{ displayName }}</span
       >
-      <div class="card" :class="{ card__isMine: isMine }">
+        {{ displayName }}
+      </span>
+      <div
+        class="card"
+        :class="{
+          card__isMine: isMine,
+          card__isReply: isReply,
+          card__isMineReply: isMine && isReply,
+        }"
+      >
         <!-- <span class="content">{{ message }}</span> -->
+        <!-- リンクにするためv-html -->
         <span v-html="message" class="content"></span>
-        <ReplyMessage
-          v-for="message in messages"
-          :key="message.id"
-          :msgId="message.id"
-          :message="message.message"
-          :icon="message.icon"
-          :timestamp="message.timestamp"
-          :displayName="message.displayName"
-          :isMine="message.isMine"
-          @delete-replypost="deleteReplyPost(message.id)"
-          :class="{ transparent: !message.isAlive }"
+        <Message
+          v-for="reply in replys"
+          :isReply="true"
+          :key="reply.id"
+          :msgId="reply.id"
+          :message="reply.message"
+          :icon="reply.icon"
+          :timestamp="reply.timestamp"
+          :displayName="reply.displayName"
+          :goodUid="reply.goodUid"
+          :isMine="reply.isMine"
+          @delete-replypost="deleteReplyPost(reply.id)"
+          :class="{ transparent: !reply.isAlive }"
+          :user="user"
           :isTokumei="isTokumei"
-        ></ReplyMessage>
+        ></Message>
       </div>
-      <span class="card-info" :class="{ 'card-info__isMine': isMine }">
-        <span class="date" :class="{ date__isMine: isMine }">{{ date }}</span>
-        <span class="edit-msg" :class="{ 'edit-msg__isMine': isMine }">
-          <MessageGood class="MessageGood" :uid="user.uid" :msgId="msgId" />
+      <span
+        class="card-info"
+        :class="{ 'card-info__isMine': isMine, 'card-info__isReply': isReply }"
+      >
+        <!-- <span class="date">{{ date }}</span> -->
+        <span class="edit-msg">
+          <!-- <MessageGood class="MessageGood" :uid="user.uid" :msgId="msgId" /> -->
+          <span class="good" v-if="!isReply">
+            <fa
+              icon="thumbs-up"
+              type="fas"
+              :class="{
+                'good-icon__checked': goodUid.indexOf(user.uid) !== -1,
+              }"
+              @click="toggleGood(msgId)"
+            ></fa>
+            <span class="good-num">{{ goodUid.length }}</span>
+          </span>
           <fa
-            v-if="!isPresenter"
+            v-if="!isPresenter && !isReply"
             icon="reply"
             type="fas"
             :class="{ reply__checked: replyIsChecked }"
@@ -48,22 +92,14 @@
 </template>
 
 <script>
-import MessageGood from './MessageGood'
-import ReplyMessage from './ReplyMessage'
-import { deletePost, setPostListener } from '../firebase/api.js'
+import Message from './Message'
+import { deletePost, setPostListener, toggleGood } from '../firebase/api.js'
 import { isMobile } from 'mobile-device-detect'
 
 export default {
   name: 'Message',
-  created() {
-    this.fetchData()
-  },
-  watch: {
-    $route: 'fetchData',
-  },
   components: {
-    MessageGood,
-    ReplyMessage,
+    Message,
   },
   props: {
     msgId: String,
@@ -71,9 +107,11 @@ export default {
     timestamp: Object,
     displayName: String,
     icon: String,
+    goodUid: Array,
     isMine: Boolean,
     user: Object,
     replyIsChecked: Boolean,
+    isReply: Boolean,
     isTokumei: Boolean,
   },
   computed: {
@@ -82,15 +120,15 @@ export default {
     },
   },
   methods: {
-    fetchData: function() {
-      this.roomId = this.$route.params['roomId']
-    },
-    addAnker: function(match) {
-      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+    toggleGood: function(id) {
+      toggleGood(
+        this.roomId,
+        id,
+        this.user.uid,
+        this.goodUid.indexOf(this.user.uid) !== -1
+      )
     },
     addReplyMessage: function(newPost) {
-      const url_regexp = /https*?:\/\/([\w-]+\.)+[\w-]+(\/[\w-~ .?%&=]*)*/g
-      newPost.message = newPost.message.replace(url_regexp, this.addAnker)
       //配列に追加
       newPost.isAlive = true
       //自分の投稿かどうか
@@ -99,15 +137,15 @@ export default {
       } else {
         newPost.isMine = false
       }
-      this.messages.push(newPost)
+      this.replys.push(newPost)
+    },
+    modifyReplyMessage: function(id) {
+      console.log(id)
     },
     deleteReplyPost: function(id) {
       const ans = confirm('メッセージを削除してもよろしいですか') // 確認ダイアログの表示
-      if (ans) {
-        deletePost(this.roomId, id, this.msgId)
-      } else {
-        event.preventDefault()
-      }
+      if (ans) deletePost(this.roomId, id, this.msgId)
+      else event.preventDefault()
     },
     deleteReplyMessage: function(id) {
       const idx = this.messages.findIndex(message => message.id === id)
@@ -120,14 +158,15 @@ export default {
   mounted: function() {
     setPostListener(
       this.roomId,
+      this.msgId,
       this.addReplyMessage,
-      this.deleteReplyMessage,
-      this.msgId
+      this.modifyReplyMessage,
+      this.deleteReplyMessage
     )
   },
   data: function() {
     return {
-      messages: [],
+      replys: [],
       roomId: this.$route.params['roomId'],
       isPresenter: isMobile,
     }
@@ -139,64 +178,116 @@ export default {
 .wrapper {
   display: grid;
   max-width: 80%;
-  padding: 12px 0;
+  padding: 8px 0;
   grid-template-columns: 48px 1fr;
-  grid-template-areas: 'areaA areaB';
+  grid-template-areas: 'icon message';
   &__isMine {
     grid-template-columns: 1fr 48px;
-    grid-template-areas: 'areaB areaA';
+    grid-template-areas: 'message icon';
     margin: 0 0 0 auto;
   }
-}
-.icon {
-  margin-top: 14px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  grid-area: areaA;
-}
-.card-wrapper {
-  grid-area: areaB;
-  margin: 0 24px;
-}
-.display-name {
-  margin: 0 16px;
-  font-size: 14px;
-  display: block;
-  text-align: left;
-  &__isMine {
-    text-align: right;
+  &__isReply {
+    max-width: calc(100% - 36px);
+    grid-template-columns: 36px 1fr;
+    grid-template-areas: 'icon message';
+  }
+  &__isMineReply {
+    grid-template-columns: 1fr 36px;
+    grid-template-areas: 'message icon';
+    margin: 0 0 0 auto;
+  }
+  .icon {
+    margin-top: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    grid-area: icon;
+    &__isReply {
+      margin-top: 20px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+  .card-wrapper {
+    grid-area: message;
+    margin: 0 24px;
+    &__isReply {
+      margin: 0 14px;
+    }
+    .display-name {
+      margin: 0 16px;
+      font-size: 14px;
+      display: block;
+      text-align: left;
+      &__isMine {
+        text-align: right;
+      }
+      &__isReply {
+        font-size: 12px;
+      }
+    }
+    .card {
+      border-radius: 16px;
+      font-size: 16px;
+      padding: 14px;
+      line-height: 16px;
+      background: $color-secondary;
+      &__isMine {
+        background: $color-primary;
+      }
+      &__isReply {
+        background: lighten($color-secondary, 10%);
+        font-size: 14px;
+      }
+      &__isMineReply {
+        background: $color-primary-lighten;
+      }
+      .content {
+        word-break: break-all;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+    }
+    .card-info {
+      margin: 0 16px;
+      font-size: 14px;
+      display: block;
+      text-align: left;
+      &__isMine {
+        text-align: right;
+      }
+      &__isReply {
+        font-size: 12px;
+      }
+      .edit-msg {
+        display: inline-block;
+        * {
+          width: 12px;
+          cursor: pointer;
+          margin-right: 16px;
+        }
+        .MessageGood {
+          display: inline;
+          margin-left: 0;
+        }
+        .delete {
+          cursor: pointer;
+          margin-left: 16px;
+          color: $color-font-link;
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }
-.card {
-  border-radius: 18px;
-  font-size: 16px;
-  padding: 14px;
-  line-height: 18px;
-  background: $color-secondary;
-  &__isMine {
-    background: $color-primary;
+@media screen and (max-width: 896px) {
+  .wrapper {
+    max-width: calc(100% - 48px);
   }
 }
-.content {
-  word-break: break-all;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-}
-.card-info {
-  margin: 0 16px;
-  font-size: 14px;
-  display: block;
-  text-align: left;
-  &__isMine {
-    text-align: right;
-  }
-}
-.delete {
-  cursor: pointer;
-  margin-left: 8px;
-  color: $color-font-link;
-  text-decoration: underline;
+
+.good-icon__checked {
+  color: orange;
 }
 
 .fa-icon {
@@ -207,31 +298,6 @@ export default {
 
 .reply__checked {
   color: lightgreen;
-}
-.date {
-  display: inline-block;
-  margin-right: 16px;
-  &__isMine {
-    margin-right: 0;
-  }
-}
-.edit-msg {
-  display: inline-block;
-  * {
-    width: 12px;
-    cursor: pointer;
-    margin-left: 0;
-    margin-right: 16px;
-  }
-  .MessageGood {
-    display: inline;
-  }
-  &__isMine {
-    * {
-      margin-left: 16px;
-      margin-right: 0;
-    }
-  }
 }
 .hidden {
   display: none;

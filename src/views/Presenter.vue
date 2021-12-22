@@ -83,7 +83,12 @@ export default {
     //ルームデータロード
     setDataListener(this.roomId, this.getChatroomDatas)
     //メッセージロード
-    setPostListener(this.roomId, this.addMessage, this.deleteMessage, '')
+    setPostListener(
+      this.roomId,
+      'isNotReply',
+      this.addMessage,
+      this.deleteMessage
+    )
   },
   props: {
     user: Object,

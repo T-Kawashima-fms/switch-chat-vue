@@ -3,6 +3,7 @@
     <div class="sidemenu-wrapper">
       <div class="sidemenu-container">
         <Sidemenu :uid="user.uid" />
+        <!-- <button @click="countMsgNum">集計</button> -->
       </div>
     </div>
     <div class="message-wrapper">
@@ -10,12 +11,14 @@
         <transition-group name="message-transition">
           <Message
             v-for="message in messages"
+            :isReply="false"
             :key="message.id"
             :msgId="message.id"
             :message="message.message"
             :icon="message.icon"
             :timestamp="message.timestamp"
             :displayName="message.displayName"
+            :goodUid="message.goodUid"
             :isMine="message.isMine"
             @delete-post="deletePost(message.id)"
             :class="{ transparent: !message.isAlive }"
@@ -54,6 +57,7 @@ import {
   deletePost,
   setPostListener,
   setDataListener,
+  cntMsgNum,
 } from '../firebase/api.js'
 
 export default {
@@ -75,6 +79,9 @@ export default {
     user: Object,
   },
   methods: {
+    countMsgNum: function() {
+      cntMsgNum(this.roomId)
+    },
     fetchData: function() {
       this.roomId = this.$route.params['roomId']
     },
@@ -86,16 +93,11 @@ export default {
         postMessage(this.roomId, this.user, this.textarea, this.replyMsgId)
         this.textarea = ''
         this.messages.forEach(message => (message.replyIsChecked = false))
-        this.replyMsgId = ''
+        this.replyMsgId = 'isNotReply'
         this.$refs.form__textarea.focus()
       } else event.preventDefault()
     },
-    addAnker: function(match) {
-      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
-    },
     addMessage: function(newPost) {
-      const url_regexp = /https*?:\/\/([\w-]+\.)+[\w-]+(\/[\w-~ .?%&=]*)*/g
-      newPost.message = newPost.message.replace(url_regexp, this.addAnker)
       //配列に追加
       newPost.isAlive = true
       newPost.replyIsChecked = false
@@ -108,18 +110,21 @@ export default {
         newPost.isMine = false
       }
       this.allMessages.push(newPost)
+      // this.count++
+      // console.log(this.allMessages.length)
       //DOM更新した後に一番下までスクロール
-      this.$nextTick(() => {
-        this.$refs['message-container'].scrollTo(0, 1000000000000)
-      })
+      // this.$nextTick(() => {
+      //   this.$refs['message-container'].scrollTo(0, 1000000000000)
+      // })
+    },
+    modifyMessage: function(newPost) {
+      const idx = this.messages.findIndex(message => message.id === newPost.id)
+      this.messages[idx].goodUid = newPost.goodUid
     },
     deletePost: function(id) {
       const ans = confirm('メッセージを削除してもよろしいですか') // 確認ダイアログの表示
-      if (ans) {
-        deletePost(this.roomId, id, '')
-      } else {
-        event.preventDefault()
-      }
+      if (ans) deletePost(this.roomId, id, 'isNotReply')
+      else event.preventDefault()
     },
     deleteMessage: function(id) {
       const idx = this.messages.findIndex(message => message.id === id)
@@ -136,7 +141,7 @@ export default {
     toggleReply: function(id) {
       this.messages.forEach(message => (message.replyIsChecked = false))
       const idx = this.messages.findIndex(message => message.id === id)
-      if (this.replyMsgId === id) this.replyMsgId = ''
+      if (this.replyMsgId === id) this.replyMsgId = 'isNotReply'
       else {
         this.messages[idx].replyIsChecked = true
         this.replyMsgId = id
@@ -148,16 +153,23 @@ export default {
     //ルームデータロード
     setDataListener(this.roomId, this.getChatroomDatas)
     //メッセージロード
-    setPostListener(this.roomId, this.addMessage, this.deleteMessage, '')
+    setPostListener(
+      this.roomId,
+      'isNotReply',
+      this.addMessage,
+      this.modifyMessage,
+      this.deleteMessage
+    )
   },
   data: function() {
     return {
+      // count: '',
       textarea: '',
       messages: [],
       myMessages: [],
       allMessages: [],
       roomId: this.$route.params['roomId'],
-      replyMsgId: '',
+      replyMsgId: 'isNotReply',
       isTokumei: true,
     }
   },

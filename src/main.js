@@ -18,13 +18,6 @@ const store = createStore({
   plugins: [createPersistedState()],
 })
 
-// vue-awesome
-// import 'vue-awesome/icons' //アイコン全部
-// import 'vue-awesome/icons/lock'
-// import 'vue-awesome/icons/lock-open'
-// import 'vue-awesome/icons/beer'
-// import Icon from 'vue-awesome/components/Icon'
-
 import { FontAwesomeIcon } from './fontawesome/index.js'
 
 createApp(App)
