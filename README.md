@@ -1,24 +1,13 @@
-# switch-chat-vue
+# PriPub chat
 
-## Project setup
-```
-npm install
-```
+卒業研究として、Vue.js と Firebase を用いて開発したチャットシステムです。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## デモ動画
 
-### Compiles and minifies for production
-```
-npm run build
-```
+[![PriPubChat Demovideo](https://img.youtube.com/vi/Q3w-iUvidOk/0.jpg)](https://www.youtube.com/watch?v=Q3w-iUvidOk)
 
-### Lints and fixes files
-```
-npm run lint
-```
+## システム概要
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+研究室内の議論のときに、後輩やシャイな人からの発言が少ないことに課題を感じ、発言しやすいようなチャットシステムを作成しました。
+
+このチャットシステムを実際に(研究室内の)研究発表会で使ってもらった結果、発言が増えたのを確認しました。
