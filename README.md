@@ -1,7 +1,8 @@
 # PriPub chat
 
 卒業研究として、Vue.js と Firebase を用いて開発したチャットシステムです。
-現在は動かしていません。
+
+https://switch-chat-c5ad1.web.app/
 
 ## デモ動画
 
